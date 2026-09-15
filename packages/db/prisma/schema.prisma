@@ -1,0 +1,55 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  rating    Int      @default(1000)
+  createdAt DateTime @default(now())
+}
+
+model Problem {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  examples    String   // JSON string
+  constraints String   // JSON string array
+  testCases   String   // JSON string
+  difficulty  String   @default("EASY")
+}
+
+model Match {
+  id          String   @id @default(cuid())
+  status      String   // WAITING, IN_PROGRESS, COMPLETED
+  type        String   // 1V1, TOURNAMENT, CONTEST
+  problemId   String?
+  winnerId    String?
+  startedAt   DateTime?
+  endedAt     DateTime?
+  players     MatchPlayer[]
+}
+
+model MatchPlayer {
+  id        String  @id @default(cuid())
+  matchId   String
+  userId    String
+  status    String  // CONNECTED, DISCONNECTED
+  match     Match   @relation(fields: [matchId], references: [id])
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  userId    String
+  matchId   String
+  problemId String
+  code      String
+  language  String
+  status    String   // PENDING, RUNNING, ACCEPTED, WRONG_ANSWER, ERROR
+  createdAt DateTime @default(now())
+}
